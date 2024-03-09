@@ -1,0 +1,7 @@
+<!-- app.component.html -->
+
+<input type="file" (change)="onFileChanged($event)">
+
+<h1 *ngIf="percentDone > 0" >{{percentDone}}% Done</h1>
+
+ <h2 *ngIf="uploadStatus">{{ "File Upload Status is " + uploadStatus.success}}</h2>
