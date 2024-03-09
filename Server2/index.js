@@ -1,32 +1,44 @@
-const http = require('http');
+const express = require('express');
 const fs = require('fs');
+const request = require('request');
 
-// Define the URL of the file on the other web server
-const fileUrl = 'http://localhost:3000/input.txt'; // Replace 'example.com' with the actual domain
-const outputFile = 'output.txt'; // Name of the file to write the content to
+const app = express();
+const port = 4000;
 
-// Make a GET request to the server
-http.get(fileUrl, (response) => {
-  let data = '';
+const fileUrl = 'http://localhost:3000/input.txt'; 
+const outputFile = 'output.txt'; 
 
-  // As data comes in, concatenate it to 'data'
-  response.on('data', (chunk) => {
-    console.log("On Data called");
-    console.log(chunk.length, "chunk length");
-    data += chunk;
-  });
+app.get('/', async (req, res) => {
+  try {
+    // Create a writable stream to the output file
+    const writer = fs.createWriteStream(outputFile);
 
-  // When all data is received
-  response.on('end', () => {
-    // Write the data to the output file
-    fs.writeFile(outputFile, data, (err) => {
-      if (err) {
-        console.error('Error writing to file:', err);
-      } else {
-        console.log('File content written to', outputFile);
-      }
+    // Make a GET request using request package
+    const response = request.get(fileUrl);
+
+    response.on("data",(chunk)=>{
+      console.log(chunk.length , "chunk");
+    })
+
+    // Pipe the response stream to the writer
+    response.pipe(writer);
+
+    // Handle events
+    writer.on('finish', () => {
+      console.log('File content written to', outputFile);
+      res.send('File content written to ' + outputFile);
     });
-  });
-}).on('error', (error) => {
-  console.error('Error fetching file:', error.message);
+
+    writer.on('error', (err) => {
+      console.error('Error writing to file:', err);
+      res.status(500).send('Error writing to file');
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Error');
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
 });
