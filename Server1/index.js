@@ -1,12 +1,14 @@
-const http = require('http');
+const express = require('express');
 const fs = require('fs');
 
+const app = express();
 const port = 3000;
-const filePath = 'input.txt'; // Path to your input file
 
-const server = http.createServer((req, res) => {
+app.get('/readFile/:filePath', (req, res) => {
   // Set appropriate headers
   res.setHeader('Content-Type', 'text/plain');
+
+  let {filePath} = req.params;
 
   // Create a readable stream to read data from the file
   const readStream = fs.createReadStream(filePath, { highWaterMark: 16 * 1024 }); // Adjust the buffer size as needed
@@ -27,6 +29,6 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(port, () => {
+app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });

@@ -5,7 +5,7 @@ const request = require('request');
 const app = express();
 const port = 4000;
 
-const fileUrl = 'http://localhost:3000/input.txt'; 
+const fileUrl = 'http://localhost:3000/readFile/input.txt'; 
 const outputFile = 'output.txt'; 
 
 app.get('/', async (req, res) => {
