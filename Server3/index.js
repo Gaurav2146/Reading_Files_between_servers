@@ -19,8 +19,6 @@ app.use(cors({
 //     return res.status(400).send('Bad Request: Content-Type must be multipart/form-data');
 //   }
 
-//   // const writeStream = fs.createWriteStream("uploaded_file.mp4", { flags: 'a' });
-
 //   const writeStream = fs.createWriteStream("uploaded_file.mp4");
 
 //   req.on('data', (chunk) => {
@@ -40,13 +38,16 @@ app.use(cors({
 // });
 
 // Multer configuration
-
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, './uploads'); // Destination folder where files will be uploaded
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname); // Keep the original file name
+    console.log(req.query, "query");
+    let { sequence_Number } = req.query;
+    let originalname = file.originalname;
+    let arr = originalname.split('.');
+    cb(null, arr[0] + "_" + sequence_Number + '.' + arr[1]); // Keep the original file name
   }
 });
 
@@ -63,6 +64,38 @@ app.get("/uploadCompleted/:FileId", (req, res, next) => {
     let { FileId } = req.params;
     console.log("FileId " + FileId + " is Uploaded Successfully");
     res.status(200).json({ success: true })
+  } catch (error) {
+    res.status(500).json({ success: false });
+  }
+})
+
+app.get("/concat", (req, res, next) => {
+  try {
+    let number = 120;
+    const writeStream = fs.createWriteStream("./uploads/uploaded_file.mp4", { flags: 'a' });
+
+    writeStream.setMaxListeners(121);
+
+    function mergeFiles(index) {
+      if (index > number) {
+        writeStream.end(() => {
+          console.log('All chunks have been merged successfully.');
+          res.status(200).json({ success: true });
+        });
+        return;
+      }
+
+      const readStream = fs.createReadStream(`./uploads/videoplayback_${index}.mp4`);
+
+      readStream.on('end', () => {
+        mergeFiles(index + 1); // Proceed to the next file after this one is merged
+      });
+
+      readStream.pipe(writeStream, { end: index === number });
+    }
+
+    mergeFiles(0); // Start merging from the first file
+
   } catch (error) {
     res.status(500).json({ success: false });
   }

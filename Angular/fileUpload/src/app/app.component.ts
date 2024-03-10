@@ -21,7 +21,7 @@ export class AppComponent {
 
   onFileChanged(event:any) {
     const file = event.target.files[0];
-    this.uploadFile(file);
+    this.uploadFileInChunck(file);
   }
 
   uploadFile(file: File) {
@@ -59,14 +59,17 @@ export class AppComponent {
       const chunk = file.slice(start, start + this.uploadChunkSize);
       const formData = new FormData();
 
+      let sequence_Number = (Math.ceil(start/this.uploadChunkSize)).toString();
+
       // Create a Blob from the file content without headers
       const fileBlob = new Blob([chunk], { type: file.type });
-      formData.append('file', fileBlob);
+      formData.append('file', fileBlob, file.name);
 
       const uploadUrl = 'http://localhost:5000/upload/'+this.FileId;
-      const req = this.http.post(uploadUrl, formData, {
+      const req = this.http.post(uploadUrl,formData,{
+        params: {sequence_Number:sequence_Number},
         reportProgress: true,
-        observe: 'events'
+        observe: 'events',
       });
   
       req.subscribe(
