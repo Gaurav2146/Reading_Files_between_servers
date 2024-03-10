@@ -27,7 +27,7 @@ export class AppComponent {
   uploadFile(file: File) {
     this.count = 0;
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file,file.name);
 
     const uploadUrl = 'http://localhost:5000/upload/'+this.FileId;
     const req = this.http.post(uploadUrl, formData, {
