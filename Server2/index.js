@@ -5,8 +5,8 @@ const request = require('request');
 const app = express();
 const port = 4000;
 
-const fileUrl = 'http://localhost:3000/readFile/input.txt'; 
-const outputFile = 'output.txt'; 
+const fileUrl = 'http://localhost:3000/readFile/uploaded_file.mp4'; 
+const outputFile = 'output.mp4'; 
 
 app.get('/', async (req, res) => {
   try {

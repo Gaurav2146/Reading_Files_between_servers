@@ -5,8 +5,11 @@ const app = express();
 const port = 3000;
 
 app.get('/readFile/:filePath', (req, res) => {
+ 
   // Set appropriate headers
-  res.setHeader('Content-Type', 'text/plain');
+  //res.setHeader('Content-Type', 'text/plain');
+
+  res.setHeader('Content-Type', 'video/mp4');
 
   let {filePath} = req.params;
 
@@ -32,3 +35,4 @@ app.get('/readFile/:filePath', (req, res) => {
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
